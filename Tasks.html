@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>InternNova Week5 - Task Manager</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+/* Task 2: CSS - Simple Layout */
+body{font-family:Arial;margin:0;background:#f2f2f2}
+header{background:#0b1020;color:white;padding:15px;text-align:center}
+nav a{color:#60a5fa;margin:0 8px;text-decoration:none}
+.container{width:92%;max-width:600px;margin:15px auto}
+.box{background:white;border:1px solid #ddd;padding:12px;margin-bottom:12px;border-radius:5px}
+input,select{width:95%;padding:7px;margin:5px 0;border:1px solid #ccc}
+button{background:#2563eb;color:white;border:none;padding:6px 10px;margin:2px;border-radius:4px;cursor:pointer}
+li{list-style:none;border:1px solid #eee;padding:8px;margin:4px 0;display:flex;justify-content:space-between;background:#fafafa}
+.done{text-decoration:line-through;color:gray}
+#error{color:red;font-size:12px}
+</style>
+</head>
+<body>
+
+<!-- Task 2: HTML Structure - Header/Nav, Main, Form, Buttons, Cards -->
+<header>
+<h3>InternNova - Task Manager</h3>
+<nav><a href="#">Home</a> <a href="#">Tasks</a> <a href="#">About</a></nav>
+</header>
+
+<div class="container">
+
+<!-- Task 1 Planning + Form -->
+<div class="box">
+<h4>Add Task</h4>
+<p style="font-size:11px;color:gray">Project: Task Manager | Objective: Manage student tasks | Features: Add, Delete, Search</p>
+<input type="text" id="taskInput" placeholder="Enter task">
+<select id="category"><option>Study</option><option>Work</option><option>Personal</option></select>
+<button onclick="addTask()">Add Task</button>
+<p id="error"></p>
+</div>
+
+<!-- Task 5 Feature: Search/Filter -->
+<div class="box">
+<input type="text" id="searchBox" placeholder="Search..." onkeyup="searchTask()">
+<select id="filterBox" onchange="filterTask()"><option value="All">All</option><option>Study</option><option>Work</option><option>Personal</option></select>
+</div>
+
+<!-- Task 5 Feature: Dynamic Counter -->
+<div class="box">Total: <span id="total">0</span> | Done: <span id="doneCount">0</span></div>
+
+<!-- Cards/Content Section -->
+<div class="box">
+<h4>Your Tasks</h4>
+<ul id="taskList"></ul>
+</div>
+
+</div>
+
+<script>
+// Task 3: Variables, Array, Object, Functions, Conditional, Loops, Array Methods
+var tasks = []; // Array
+var id = 1;
+
+// Task 4: Selecting Elements
+var input = document.getElementById("taskInput");
+var cat = document.getElementById("category");
+var list = document.getElementById("taskList");
+var err = document.getElementById("error");
+
+// Task 5 Feature: Add/Delete + Form Validation
+function addTask(){
+var name = input.value;
+var category = cat.value;
+// Conditional + Validation
+if(name == ""){
+err.innerText = "Please enter task!";
+return;
+}else{err.innerText = "";}
+// Object
+var obj = {id: id, name: name, category: category, isDone: false};
+tasks.push(obj); // Array Method push
+id++;
+input.value = "";
+showTasks();
+countUpdate();
+}
+
+// Task 4: Creating/Removing, Updating, Loops
+function showTasks(){
+list.innerHTML = ""; // Removing
+for(var i=0;i<tasks.length;i++){ // Loop
+var li = document.createElement("li"); // Creating
+if(tasks[i].isDone==true){li.className="done";}
+li.innerHTML = "<span>"+tasks[i].name+" ["+tasks[i].category+"]</span><div><button onclick='done("+tasks[i].id+")'>Done</button><button onclick='editTask("+tasks[i].id+")'>Edit</button><button onclick='del("+tasks[i].id+")'>Del</button></div>";
+list.appendChild(li);
+}
+}
+
+// Task 5 Feature: Delete + Filter Method
+function del(taskId){
+tasks = tasks.filter(function(t){return t.id != taskId;});
+showTasks();
+countUpdate();
+}
+
+// Task 5 Feature: Edit/Update Data
+function editTask(taskId){
+var newName = prompt("New name:");
+if(newName){
+for(var i=0;i<tasks.length;i++){if(tasks[i].id==taskId){tasks[i].name=newName;}}
+showTasks();
+}
+}
+
+function done(taskId){
+for(var i=0;i<tasks.length;i++){if(tasks[i].id==taskId){if(tasks[i].isDone==false){tasks[i].isDone=true;}else{tasks[i].isDone=false;}}}
+showTasks();
+countUpdate();
+}
+
+// Task 5 Feature: Search or Filter - includes method
+function searchTask(){
+var word = document.getElementById("searchBox").value.toLowerCase();
+var filtered = tasks.filter(function(t){return t.name.toLowerCase().includes(word);});
+list.innerHTML="";
+for(var i=0;i<filtered.length;i++){
+var li=document.createElement("li");
+if(filtered[i].isDone)li.className="done";
+li.innerHTML="<span>"+filtered[i].name+" ["+filtered[i].category+"]</span><div><button onclick='done("+filtered[i].id+")'>Done</button><button onclick='del("+filtered[i].id+")'>Del</button></div>";
+list.appendChild(li);
+}
+}
+
+// Task 5 Feature: Category Filtering
+function filterTask(){
+var f = document.getElementById("filterBox").value;
+if(f=="All"){showTasks();return;}
+var filtered = tasks.filter(function(t){return t.category==f;});
+list.innerHTML="";
+for(var i=0;i<filtered.length;i++){
+var li=document.createElement("li");
+if(filtered[i].isDone)li.className="done";
+li.innerHTML="<span>"+filtered[i].name+" ["+filtered[i].category+"]</span><div><button onclick='done("+filtered[i].id+")'>Done</button><button onclick='del("+filtered[i].id+")'>Del</button></div>";
+list.appendChild(li);
+}
+}
+
+// Task 5 Feature: Dynamic Counter
+function countUpdate(){
+var total = tasks.length;
+var doneC = 0;
+for(var i=0;i<tasks.length;i++){if(tasks[i].isDone==true){doneC++;}}
+document.getElementById("total").innerText=total;
+document.getElementById("doneCount").innerText=doneC;
+}
+
+// Task 4: Input Events + Button Click Events
+input.addEventListener("input",function(){console.log("Typing: "+input.value);});
+</script>
+</body>
+</html>
